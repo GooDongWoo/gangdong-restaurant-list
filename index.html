@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   강동역 식사 리스트
-  </title>
-  <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-  <style>
-   body {
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강동역 식사 리스트</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
             font-family: 'Noto Sans KR', sans-serif;
             background-color: #f8f9fa;
             margin: 0;
@@ -22,7 +20,8 @@
             background-color: #ffffff;
             padding: 25px 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px
+ 15px rgba(0,0,0,0.08);
         }
         .header {
             display: flex;
@@ -39,19 +38,47 @@
         }
         .filters {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
             align-items: center;
         }
-        .filters label {
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group > .filter-label {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .filter-group .radio-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .filter-group .radio-group label {
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 15px;
+            border: 1px solid #ddd;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .filter-group .radio-group input[type="radio"] {
+            display: none;
+        }
+        .filter-group .radio-group input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
             font-weight: 500;
         }
-        .filters select {
+        #filter-category {
             padding: 6px 10px;
             border: 1px solid #ced4da;
             border-radius: 6px;
-            font-family: 'Noto Sans KR', sans-serif;
         }
         table.dataTable {
             width: 100% !important;
@@ -61,12 +88,10 @@
             background-color: #f2f6fc;
             text-align: center !important;
             white-space: nowrap;
-            padding: 12px 10px;
         }
         tbody td {
             text-align: center;
             vertical-align: middle;
-            padding: 12px 10px;
         }
         .availability {
             font-weight: 700;
@@ -85,2612 +110,300 @@
         button.map-btn:hover {
             background-color: #218838;
         }
+
         /* Mobile Responsive Styles */
         @media screen and (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            .header h1 {
-                font-size: 22px;
-            }
-            .filters {
-                gap: 10px;
-            }
-            /* DataTables search and length menu adjustments */
-            .dataTables_wrapper .dataTables_filter,
-            .dataTables_wrapper .dataTables_length {
+            .container { padding: 15px; }
+            .header h1 { font-size: 22px; }
+            .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {
+                width: 100%;
                 text-align: left;
-                width: 48%;
-                display: inline-block;
+            }
+            .dataTables_wrapper .dataTables_filter { margin-bottom: 15px; }
+            table.dataTable thead { display: none; }
+            table.dataTable tbody, table.dataTable tr, table.dataTable td { display: block; }
+
+            table.dataTable tr {
                 margin-bottom: 10px;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 12px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
             }
-            .dataTables_wrapper .dataTables_filter input {
-                width: 90% !important;
+            .mobile-main-info {
+                flex-grow: 1;
+                min-width: 60%;
             }
-            table.dataTable {
-                border: 0;
+            .mobile-map-btn {
+                flex-shrink: 0;
             }
-            table.dataTable thead {
+            td {
+                border: none;
+                padding: 0;
+                text-align: left;
+            }
+            /* Hide desktop columns */
+            td[data-label="순번"], td[data-label="조식"], td[data-label="중식"], td[data-label="석식"], td[data-label="음식점 종류"] {
                 display: none;
             }
-            table.dataTable tr {
-                display: block;
-                margin-bottom: 15px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-                padding: 15px;
-            }
-            table.dataTable td {
-                display: block;
-                text-align: right;
-                font-size: 15px;
-                border-bottom: 1px solid #f0f0f0;
-                padding: 12px 5px;
-                position: relative;
-            }
-            table.dataTable td:last-child {
-                border-bottom: 0;
-            }
-            table.dataTable td[data-label] {
-                text-align: right;
-            }
-            table.dataTable td[data-label]::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 5px;
-                width: 45%;
-                text-align: left;
-                font-weight: bold;
-                white-space: nowrap;
-            }
-            /* Highlight the name as a title */
-            table.dataTable td[data-label="가맹점"] {
-                font-size: 1.2em;
+            td[data-label="가맹점"] {
+                font-size: 1.1em;
                 font-weight: 700;
-                text-align: center;
-                background-color: #f8f9fa;
-                border-radius: 4px 4px 0 0;
-                padding: 15px 5px;
-            }
-            table.dataTable td[data-label="가맹점"]::before {
-                display: none; /* Hide label for title */
-            }
-            /* Make button full-width */
-            td[data-label="지도"] .map-btn {
+                padding-bottom: 8px;
                 width: 100%;
-                box-sizing: border-box;
-                padding: 12px;
-                font-size: 1em;
             }
-            td[data-label="지도"]::before {
-                display: none; /* Hide label for button */
+            .mobile-info-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                align-items: center;
+                width: 100%;
+            }
+            .mobile-info-tags .tag {
+                font-size: 0.8em;
+                padding: 4px 7px;
+                border-radius: 4px;
+                background-color: #f1f3f5;
+                color: #495057;
+            }
+            .mobile-info-tags .tag.available {
+                color: #1a6a35;
+                background-color: #e3f9e5;
+            }
+            td[data-label="지도"] .map-btn {
+                padding: 10px 14px;
             }
         }
-  </style>
- </head>
- <body>
-  <div class="container">
-   <div class="header">
-    <h1>
-     🍴 강동역 식사 리스트
-    </h1>
-   </div>
-   <div class="filters">
-    <label for="filter-breakfast">
-     조식:
-    </label>
-    <select id="filter-breakfast">
-     <option value="">
-      모두
-     </option>
-     <option value="O">
-      O
-     </option>
-     <option value="X">
-      X
-     </option>
-    </select>
-    <label for="filter-lunch">
-     중식:
-    </label>
-    <select id="filter-lunch">
-     <option value="">
-      모두
-     </option>
-     <option value="O">
-      O
-     </option>
-     <option value="X">
-      X
-     </option>
-    </select>
-    <label for="filter-dinner">
-     석식:
-    </label>
-    <select id="filter-dinner">
-     <option value="">
-      모두
-     </option>
-     <option value="O">
-      O
-     </option>
-     <option value="X">
-      X
-     </option>
-    </select>
-    <label for="filter-category">
-     종류:
-    </label>
-    <select id="filter-category">
-     <option value="">
-      모두
-     </option>
-     <option value="기타">
-      기타
-     </option>
-     <option value="분식">
-      분식
-     </option>
-     <option value="양식">
-      양식
-     </option>
-     <option value="일식">
-      일식
-     </option>
-     <option value="중식/아시안">
-      중식/아시안
-     </option>
-     <option value="카페/디저트">
-      카페/디저트
-     </option>
-     <option value="한식">
-      한식
-     </option>
-    </select>
-   </div>
-   <table class="display" id="restaurantTable">
-    <thead>
-     <tr>
-      <th>
-       순번
-      </th>
-      <th>
-       가맹점
-      </th>
-      <th>
-       조식
-      </th>
-      <th>
-       중식
-      </th>
-      <th>
-       석식
-      </th>
-      <th>
-       음식점 종류
-      </th>
-      <th>
-       지도
-      </th>
-     </tr>
-    </thead>
-    <tbody>
-     <tr>
-      <td data-label="순번">
-       1
-      </td>
-      <td data-label="가맹점">
-       가마솥순대국밥(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B0%80%EB%A7%88%EC%86%A5%EC%88%9C%EB%8C%80%EA%B5%AD%EB%B0%A5%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       2
-      </td>
-      <td data-label="가맹점">
-       강남교자(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B0%95%EB%82%A8%EA%B5%90%EC%9E%90%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       3
-      </td>
-      <td data-label="가맹점">
-       강동면옥(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B0%95%EB%8F%99%EB%A9%B4%EC%98%A5%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       4
-      </td>
-      <td data-label="가맹점">
-       강동호치민
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       중식/아시안
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B0%95%EB%8F%99%ED%98%B8%EC%B9%98%EB%AF%BC', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       5
-      </td>
-      <td data-label="가맹점">
-       강릉장칼(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B0%95%EB%A6%89%EC%9E%A5%EC%B9%BC%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       6
-      </td>
-      <td data-label="가맹점">
-       과일의시작 카페야미(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B3%BC%EC%9D%BC%EC%9D%98%EC%8B%9C%EC%9E%91%20%EC%B9%B4%ED%8E%98%EC%95%BC%EB%AF%B8%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       7
-      </td>
-      <td data-label="가맹점">
-       금돈김치마을
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B8%88%EB%8F%88%EA%B9%80%EC%B9%98%EB%A7%88%EC%9D%84', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       8
-      </td>
-      <td data-label="가맹점">
-       금호식당
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%B8%88%ED%98%B8%EC%8B%9D%EB%8B%B9', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       9
-      </td>
-      <td data-label="가맹점">
-       꿀꿀 진순대국
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EA%BF%80%EA%BF%80%20%EC%A7%84%EC%88%9C%EB%8C%80%EA%B5%AD', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       10
-      </td>
-      <td data-label="가맹점">
-       늘봄두루치기김치찌개
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%8A%98%EB%B4%84%EB%91%90%EB%A3%A8%EC%B9%98%EA%B8%B0%EA%B9%80%EC%B9%98%EC%B0%8C%EA%B0%9C', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       11
-      </td>
-      <td data-label="가맹점">
-       대삼박이
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%8C%80%EC%82%BC%EB%B0%95%EC%9D%B4', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       12
-      </td>
-      <td data-label="가맹점">
-       동경규동(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       일식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%8F%99%EA%B2%BD%EA%B7%9C%EB%8F%99%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       13
-      </td>
-      <td data-label="가맹점">
-       돈까스랑 칼국수랑
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%8F%88%EA%B9%8C%EC%8A%A4%EB%9E%91%20%EC%B9%BC%EA%B5%AD%EC%88%98%EB%9E%91', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       14
-      </td>
-      <td data-label="가맹점">
-       뚜레쥬르(카페강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%9A%9C%EB%A0%88%EC%A5%AC%EB%A5%B4%28%EC%B9%B4%ED%8E%98%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       15
-      </td>
-      <td data-label="가맹점">
-       라라포 분짜 쌀국수
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%9D%BC%EB%9D%BC%ED%8F%AC%20%EB%B6%84%EC%A7%9C%20%EC%8C%80%EA%B5%AD%EC%88%98', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       16
-      </td>
-      <td data-label="가맹점">
-       래빗온더터틀(Rabbit on the Turtle)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%9E%98%EB%B9%97%EC%98%A8%EB%8D%94%ED%84%B0%ED%8B%80%28Rabbit%20on%20the%20Turtle%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       17
-      </td>
-      <td data-label="가맹점">
-       롯데리아(길동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A1%AF%EB%8D%B0%EB%A6%AC%EC%95%84%28%EA%B8%B8%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       18
-      </td>
-      <td data-label="가맹점">
-       루벨(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A3%A8%EB%B2%A8%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       19
-      </td>
-      <td data-label="가맹점">
-       만랩커피(강동ECT점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A7%8C%EB%9E%A9%EC%BB%A4%ED%94%BC%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       20
-      </td>
-      <td data-label="가맹점">
-       맘스터치(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A7%98%EC%8A%A4%ED%84%B0%EC%B9%98%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       21
-      </td>
-      <td data-label="가맹점">
-       맛있는닭한마리
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A7%9B%EC%9E%88%EB%8A%94%EB%8B%AD%ED%95%9C%EB%A7%88%EB%A6%AC', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       22
-      </td>
-      <td data-label="가맹점">
-       맛짱이떡볶이(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       분식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A7%9B%EC%A7%B1%EC%9D%B4%EB%96%A1%EB%B3%B6%EC%9D%B4%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       23
-      </td>
-      <td data-label="가맹점">
-       매머드익스프레스(신
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%A7%A4%EB%A8%B8%EB%93%9C%EC%9D%B5%EC%8A%A4%ED%94%84%EB%A0%88%EC%8A%A4%28%EC%8B%A0', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       24
-      </td>
-      <td data-label="가맹점">
-       모리향(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%AA%A8%EB%A6%AC%ED%96%A5%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       25
-      </td>
-      <td data-label="가맹점">
-       모범떡볶이(길동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       분식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%AA%A8%EB%B2%94%EB%96%A1%EB%B3%B6%EC%9D%B4%28%EA%B8%B8%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       26
-      </td>
-      <td data-label="가맹점">
-       미리내경양식
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%AF%B8%EB%A6%AC%EB%82%B4%EA%B2%BD%EC%96%91%EC%8B%9D', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       27
-      </td>
-      <td data-label="가맹점">
-       미식미객
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%AF%B8%EC%8B%9D%EB%AF%B8%EA%B0%9D', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       28
-      </td>
-      <td data-label="가맹점">
-       미화동
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%AF%B8%ED%99%94%EB%8F%99', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       29
-      </td>
-      <td data-label="가맹점">
-       바른보쌈1990(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B0%94%EB%A5%B8%EB%B3%B4%EC%8C%881990%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       30
-      </td>
-      <td data-label="가맹점">
-       밥쁘다
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B0%A5%EC%81%98%EB%8B%A4', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       31
-      </td>
-      <td data-label="가맹점">
-       뱃살도둑(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B1%83%EC%82%B4%EB%8F%84%EB%91%91%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       32
-      </td>
-      <td data-label="가맹점">
-       백년국수
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B0%B1%EB%85%84%EA%B5%AD%EC%88%98', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       33
-      </td>
-      <td data-label="가맹점">
-       백채김치찌개 강동역점
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B0%B1%EC%B1%84%EA%B9%80%EC%B9%98%EC%B0%8C%EA%B0%9C%20%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       34
-      </td>
-      <td data-label="가맹점">
-       보돌미역(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B3%B4%EB%8F%8C%EB%AF%B8%EC%97%AD%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       35
-      </td>
-      <td data-label="가맹점">
-       보배반점(길동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B3%B4%EB%B0%B0%EB%B0%98%EC%A0%90%28%EA%B8%B8%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       36
-      </td>
-      <td data-label="가맹점">
-       본가왕뼈감자탕(길동사거리점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B3%B8%EA%B0%80%EC%99%95%EB%BC%88%EA%B0%90%EC%9E%90%ED%83%95%28%EA%B8%B8%EB%8F%99%EC%82%AC%EA%B1%B0%EB%A6%AC%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       37
-      </td>
-      <td data-label="가맹점">
-       본죽&amp;비빔밥(강동성심병원점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B3%B8%EC%A3%BD%26%EB%B9%84%EB%B9%94%EB%B0%A5%28%EA%B0%95%EB%8F%99%EC%84%B1%EC%8B%AC%EB%B3%91%EC%9B%90%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       38
-      </td>
-      <td data-label="가맹점">
-       봉평막국수.보쌈
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B4%89%ED%8F%89%EB%A7%89%EA%B5%AD%EC%88%98.%EB%B3%B4%EC%8C%88', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       39
-      </td>
-      <td data-label="가맹점">
-       빵장수단팥빵(천호점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B9%B5%EC%9E%A5%EC%88%98%EB%8B%A8%ED%8C%A5%EB%B9%B5%28%EC%B2%9C%ED%98%B8%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       40
-      </td>
-      <td data-label="가맹점">
-       빽다방(강동역헤르셔점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EB%B9%BD%EB%8B%A4%EB%B0%A9%28%EA%B0%95%EB%8F%99%EC%97%AD%ED%97%A4%EB%A5%B4%EC%85%94%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       41
-      </td>
-      <td data-label="가맹점">
-       삼삼뼈국(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%82%BC%EC%82%BC%EB%BC%88%EA%B5%AD%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       42
-      </td>
-      <td data-label="가맹점">
-       샐러그리티
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%83%90%EB%9F%AC%EA%B7%B8%EB%A6%AC%ED%8B%B0', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       43
-      </td>
-      <td data-label="가맹점">
-       샐러드아월스어클락
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       양식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%83%90%EB%9F%AC%EB%93%9C%EC%95%84%EC%9B%94%EC%8A%A4%EC%96%B4%ED%81%B4%EB%9D%BD', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       44
-      </td>
-      <td data-label="가맹점">
-       샐러디(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%83%90%EB%9F%AC%EB%94%94%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       45
-      </td>
-      <td data-label="가맹점">
-       생달막국수
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%83%9D%EB%8B%AC%EB%A7%89%EA%B5%AD%EC%88%98', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       46
-      </td>
-      <td data-label="가맹점">
-       서울감자탕
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%84%9C%EC%9A%B8%EA%B0%90%EC%9E%90%ED%83%95', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       47
-      </td>
-      <td data-label="가맹점">
-       선비꼬마김밥(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%84%A0%EB%B9%84%EA%BC%AC%EB%A7%88%EA%B9%80%EB%B0%A5%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       48
-      </td>
-      <td data-label="가맹점">
-       성내맛집
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%84%B1%EB%82%B4%EB%A7%9B%EC%A7%91', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       49
-      </td>
-      <td data-label="가맹점">
-       성화마라탕(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       중식/아시안
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%84%B1%ED%99%94%EB%A7%88%EB%9D%BC%ED%83%95%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       50
-      </td>
-      <td data-label="가맹점">
-       설담재(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%84%A4%EB%8B%B4%EC%9E%AC%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       51
-      </td>
-      <td data-label="가맹점">
-       소담촌(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%86%8C%EB%8B%B4%EC%B4%8C%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       52
-      </td>
-      <td data-label="가맹점">
-       순복이네 손맛집
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%88%9C%EB%B3%B5%EC%9D%B4%EB%84%A4%20%EC%86%90%EB%A7%9B%EC%A7%91', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       53
-      </td>
-      <td data-label="가맹점">
-       스타벅스(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%8A%A4%ED%83%80%EB%B2%85%EC%8A%A4%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       54
-      </td>
-      <td data-label="가맹점">
-       스타벅스(천호대로길동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%8A%A4%ED%83%80%EB%B2%85%EC%8A%A4%28%EC%B2%9C%ED%98%B8%EB%8C%80%EB%A1%9C%EA%B8%B8%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       55
-      </td>
-      <td data-label="가맹점">
-       슬로우캘리(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%8A%AC%EB%A1%9C%EC%9A%B0%EC%BA%98%EB%A6%AC%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       56
-      </td>
-      <td data-label="가맹점">
-       써브웨이(강동성심병원점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%8D%A8%EB%B8%8C%EC%9B%A8%EC%9D%B4%28%EA%B0%95%EB%8F%99%EC%84%B1%EC%8B%AC%EB%B3%91%EC%9B%90%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       57
-      </td>
-      <td data-label="가맹점">
-       얌샘김밥(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%96%8C%EC%83%98%EA%B9%80%EB%B0%A5%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       58
-      </td>
-      <td data-label="가맹점">
-       양촌리
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%96%91%EC%B4%8C%EB%A6%AC', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       59
-      </td>
-      <td data-label="가맹점">
-       오쏘헬씨
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%98%A4%EC%8F%98%ED%97%AC%EC%94%A8', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       60
-      </td>
-      <td data-label="가맹점">
-       오형제반점(길동사거리점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%98%A4%ED%98%95%EC%A0%9C%EB%B0%98%EC%A0%90%28%EA%B8%B8%EB%8F%99%EC%82%AC%EA%B1%B0%EB%A6%AC%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       61
-      </td>
-      <td data-label="가맹점">
-       온유나베
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%98%A8%EC%9C%A0%EB%82%98%EB%B2%A0', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       62
-      </td>
-      <td data-label="가맹점">
-       온정담
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%98%A8%EC%A0%95%EB%8B%B4', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       63
-      </td>
-      <td data-label="가맹점">
-       와바닭강정
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%99%80%EB%B0%94%EB%8B%AD%EA%B0%95%EC%A0%95', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       64
-      </td>
-      <td data-label="가맹점">
-       우리왕갈비탕
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9A%B0%EB%A6%AC%EC%99%95%EA%B0%88%EB%B9%84%ED%83%95', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       65
-      </td>
-      <td data-label="가맹점">
-       우리콩손두부
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9A%B0%EB%A6%AC%EC%BD%A9%EC%86%90%EB%91%90%EB%B6%80', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       66
-      </td>
-      <td data-label="가맹점">
-       우미관
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9A%B0%EB%AF%B8%EA%B4%80', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       67
-      </td>
-      <td data-label="가맹점">
-       육대장(강동성심병원점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9C%A1%EB%8C%80%EC%9E%A5%28%EA%B0%95%EB%8F%99%EC%84%B1%EC%8B%AC%EB%B3%91%EC%9B%90%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       68
-      </td>
-      <td data-label="가맹점">
-       이디야(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9D%B4%EB%94%94%EC%95%BC%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       69
-      </td>
-      <td data-label="가맹점">
-       이삭토스트(강동성심병원점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9D%B4%EC%82%AD%ED%86%A0%EC%8A%A4%ED%8A%B8%28%EA%B0%95%EB%8F%99%EC%84%B1%EC%8B%AC%EB%B3%91%EC%9B%90%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       70
-      </td>
-      <td data-label="가맹점">
-       재수네감자탕
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%9E%AC%EC%88%98%EB%84%A4%EA%B0%90%EC%9E%90%ED%83%95', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       71
-      </td>
-      <td data-label="가맹점">
-       전주콩뿌리콩나물국밥
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%A0%84%EC%A3%BC%EC%BD%A9%EB%BF%8C%EB%A6%AC%EC%BD%A9%EB%82%98%EB%AC%BC%EA%B5%AD%EB%B0%A5', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       72
-      </td>
-      <td data-label="가맹점">
-       전통춘천닭갈비
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%A0%84%ED%86%B5%EC%B6%98%EC%B2%9C%EB%8B%AD%EA%B0%88%EB%B9%84', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       73
-      </td>
-      <td data-label="가맹점">
-       죠샌드위치(강동역익스프레스점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       양식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%A3%A0%EC%83%8C%EB%93%9C%EC%9C%84%EC%B9%98%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%9D%B5%EC%8A%A4%ED%94%84%EB%A0%88%EC%8A%A4%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       74
-      </td>
-      <td data-label="가맹점">
-       죠스떡볶이(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       분식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%A3%A0%EC%8A%A4%EB%96%A1%EB%B3%B6%EC%9D%B4%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       75
-      </td>
-      <td data-label="가맹점">
-       청년다방(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%B2%AD%EB%85%84%EB%8B%A4%EB%B0%A9%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       76
-      </td>
-      <td data-label="가맹점">
-       청담동마녀김밥(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%B2%AD%EB%8B%B4%EB%8F%99%EB%A7%88%EB%85%80%EA%B9%80%EB%B0%A5%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       77
-      </td>
-      <td data-label="가맹점">
-       치코스
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%B9%98%EC%BD%94%EC%8A%A4', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       78
-      </td>
-      <td data-label="가맹점">
-       칠갑산숯불갈비
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%B9%A0%EA%B0%91%EC%82%B0%EC%88%AF%EB%B6%88%EA%B0%88%EB%B9%84', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       79
-      </td>
-      <td data-label="가맹점">
-       카페63도
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%B9%B4%ED%8E%9863%EB%8F%84', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       80
-      </td>
-      <td data-label="가맹점">
-       코코플랑
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%EC%BD%94%EC%BD%94%ED%94%8C%EB%9E%91', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       81
-      </td>
-      <td data-label="가맹점">
-       키츠네
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%82%A4%EC%B8%A0%EB%84%A4', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       82
-      </td>
-      <td data-label="가맹점">
-       투썸플레이스(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%88%AC%EC%8D%B8%ED%94%8C%EB%A0%88%EC%9D%B4%EC%8A%A4%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       83
-      </td>
-      <td data-label="가맹점">
-       파리바게뜨(강동성내점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%8C%8C%EB%A6%AC%EB%B0%94%EA%B2%8C%EB%9C%A8%28%EA%B0%95%EB%8F%99%EC%84%B1%EB%82%B4%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       84
-      </td>
-      <td data-label="가맹점">
-       파리바게뜨(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       O
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%8C%8C%EB%A6%AC%EB%B0%94%EA%B2%8C%EB%9C%A8%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       85
-      </td>
-      <td data-label="가맹점">
-       팬 파스타 8393
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       양식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%8C%AC%20%ED%8C%8C%EC%8A%A4%ED%83%80%208393', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       86
-      </td>
-      <td data-label="가맹점">
-       포아이니Pro 강동점
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%8F%AC%EC%95%84%EC%9D%B4%EB%8B%88Pro%20%EA%B0%95%EB%8F%99%EC%A0%90', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       87
-      </td>
-      <td data-label="가맹점">
-       포케올데이(길동사거리점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       카페/디저트
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%8F%AC%EC%BC%80%EC%98%AC%EB%8D%B0%EC%9D%B4%28%EA%B8%B8%EB%8F%99%EC%82%AC%EA%B1%B0%EB%A6%AC%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       88
-      </td>
-      <td data-label="가맹점">
-       프랭크버거(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%94%84%EB%9E%AD%ED%81%AC%EB%B2%84%EA%B1%B0%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       89
-      </td>
-      <td data-label="가맹점">
-       한솥도시락(강동성심병원점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%95%9C%EC%86%A5%EB%8F%84%EC%8B%9C%EB%9D%BD%28%EA%B0%95%EB%8F%99%EC%84%B1%EC%8B%AC%EB%B3%91%EC%9B%90%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       90
-      </td>
-      <td data-label="가맹점">
-       한양진순대국
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%95%9C%EC%96%91%EC%A7%84%EC%88%9C%EB%8C%80%EA%B5%AD', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       91
-      </td>
-      <td data-label="가맹점">
-       햄찌와베찌(강동점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       X
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%96%84%EC%B0%8C%EC%99%80%EB%B2%A0%EC%B0%8C%28%EA%B0%95%EB%8F%99%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       92
-      </td>
-      <td data-label="가맹점">
-       홍순우 홍제동순두부우동국수(강동역점)
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       한식
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%99%8D%EC%88%9C%EC%9A%B0%20%ED%99%8D%EC%A0%9C%EB%8F%99%EC%88%9C%EB%91%90%EB%B6%80%EC%9A%B0%EB%8F%99%EA%B5%AD%EC%88%98%28%EA%B0%95%EB%8F%99%EC%97%AD%EC%A0%90%29', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       93
-      </td>
-      <td data-label="가맹점">
-       홍콩
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%99%8D%EC%BD%A9', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-     <tr>
-      <td data-label="순번">
-       94
-      </td>
-      <td data-label="가맹점">
-       힐링차이나
-      </td>
-      <td class="availability" data-label="조식">
-       X
-      </td>
-      <td class="availability" data-label="중식">
-       O
-      </td>
-      <td class="availability" data-label="석식">
-       O
-      </td>
-      <td data-label="음식점 종류">
-       기타
-      </td>
-      <td data-label="지도">
-       <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/%ED%9E%90%EB%A7%81%EC%B0%A8%EC%9D%B4%EB%82%98', '_blank')">
-        지도 보기
-       </button>
-      </td>
-     </tr>
-    </tbody>
-   </table>
-  </div>
-  <script src="https://code.jquery.com/jquery-3.7.0.js">
-  </script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js">
-  </script>
-  <script>
-   $(document).ready(function() {
-        var table = $('#restaurantTable').DataTable({
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍴 강동역 식사 리스트</h1>
+        </div>
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">식사:</span>
+                <div class="radio-group">
+                    <input type="radio" id="meal_all" name="meal_time" value="" checked>
+                    <label for="meal_all">전체</label>
+                    <input type="radio" id="meal_bf" name="meal_time" value="breakfast">
+                    <label for="meal_bf">조식</label>
+                    <input type="radio" id="meal_ln" name="meal_time" value="lunch">
+                    <label for="meal_ln">중식</label>
+                    <input type="radio" id="meal_dn" name="meal_time" value="dinner">
+                    <label for="meal_dn">석식</label>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label" for="filter-category">종류:</label>
+                <select id="filter-category">
+                    <option value=''>모두</option>
+                    <option value='기타'>기타</option>
+                    <option value='분식'>분식</option>
+                    <option value='양식'>양식</option>
+                    <option value='일식'>일식</option>
+                    <option value='중식/아시안'>중식/아시안</option>
+                    <option value='카페/디저트'>카페/디저트</option>
+                    <option value='한식'>한식</option>
+                </select>
+            </div>
+        </div>
+
+        <table id="restaurantTable" class="display">
+            <thead>
+                <tr>
+                    <th>순번</th>
+                    <th>가맹점</th>
+                    <th>조식</th>
+                    <th>중식</th>
+                    <th>석식</th>
+                    <th>음식점 종류</th>
+                    <th>지도</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        const restaurantData = [
+            { name: "가마솥순대국밥(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "강남교자(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "강동면옥(강동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "강동호치민", breakfast: 'X', lunch: 'O', dinner: 'O', category: "중식/아시안" },
+            { name: "강릉장칼(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "과일의시작 카페야미(강동점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "금돈김치마을", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "금호식당", breakfast: 'O', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "꿀꿀 진순대국", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "늘봄두루치기김치찌개", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "대삼박이", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "동경규동(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'O', category: "일식" },
+            { name: "돈까스랑 칼국수랑", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "뚜레쥬르(카페강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "라라포 분짜 쌀국수", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "래빗온더터틀(Rabbit on the Turtle)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "롯데리아(길동점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "루벨(강동점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "만랩커피(강동ECT점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "맘스터치(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "맛있는닭한마리", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "맛짱이떡볶이(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "분식" },
+            { name: "매머드익스프레스(신", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "모리향(강동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "모범떡볶이(길동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "분식" },
+            { name: "미리내경양식", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "미식미객", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "미화동", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "바른보쌈1990(강동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "밥쁘다", breakfast: 'O', lunch: 'O', dinner: 'X', category: "한식" },
+            { name: "뱃살도둑(강동점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "백년국수", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "백채김치찌개 강동역점", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "보돌미역(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "보배반점(길동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "본가왕뼈감자탕(길동사거리점)", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "본죽&비빔밥(강동성심병원점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "봉평막국수.보쌈", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "빵장수단팥빵(천호점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "빽다방(강동역헤르셔점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "삼삼뼈국(강동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "샐러그리티", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "샐러드아월스어클락", breakfast: 'O', lunch: 'O', dinner: 'X', category: "양식" },
+            { name: "샐러디(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "생달막국수", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "서울감자탕", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "선비꼬마김밥(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "한식" },
+            { name: "성내맛집", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "성화마라탕(강동점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "중식/아시안" },
+            { name: "설담재(강동점)", breakfast: 'O', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "소담촌(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "순복이네 손맛집", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "스타벅스(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "스타벅스(천호대로길동점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "슬로우캘리(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "써브웨이(강동성심병원점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "얌샘김밥(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "한식" },
+            { name: "양촌리", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "오쏘헬씨", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "오형제반점(길동사거리점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "온유나베", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "온정담", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "와바닭강정", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "우리왕갈비탕", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "우리콩손두부", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "우미관", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "육대장(강동성심병원점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "이디야(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "이삭토스트(강동성심병원점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "재수네감자탕", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "전주콩뿌리콩나물국밥", breakfast: 'O', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "전통춘천닭갈비", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "죠샌드위치(강동역익스프레스점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "양식" },
+            { name: "죠스떡볶이(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "분식" },
+            { name: "청년다방(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "청담동마녀김밥(강동점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "한식" },
+            { name: "치코스", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "칠갑산숯불갈비", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "카페63도", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "코코플랑", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "키츠네", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "투썸플레이스(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "파리바게뜨(강동성내점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "파리바게뜨(강동역점)", breakfast: 'O', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "팬 파스타 8393", breakfast: 'X', lunch: 'O', dinner: 'O', category: "양식" },
+            { name: "포아이니Pro 강동점", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "포케올데이(길동사거리점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "카페/디저트" },
+            { name: "프랭크버거(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "한솥도시락(강동성심병원점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "한양진순대국", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "햄찌와베찌(강동점)", breakfast: 'X', lunch: 'O', dinner: 'X', category: "기타" },
+            { name: "홍순우 홍제동순두부우동국수(강동역점)", breakfast: 'X', lunch: 'O', dinner: 'O', category: "한식" },
+            { name: "홍콩", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" },
+            { name: "힐링차이나", breakfast: 'X', lunch: 'O', dinner: 'O', category: "기타" }
+        ];
+
+        const table = $('#restaurantTable').DataTable({
             "pageLength": 100,
-            "language": {
-                "decimal": "",
-                "emptyTable": "데이터가 없습니다.",
-                "info": "총 _TOTAL_개 중 _START_에서 _END_까지 표시",
-                "infoEmpty": "0개 항목",
-                "infoFiltered": "(_MAX_개 항목에서 필터링됨)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "_MENU_ 개씩 보기",
-                "loadingRecords": "로딩 중...",
-                "processing": "처리 중...",
-                "search": "가맹점 검색:",
-                "zeroRecords": "일치하는 데이터가 없습니다.",
-                "paginate": {
-                    "first": "처음",
-                    "last": "마지막",
-                    "next": "다음",
-                    "previous": "이전"
-                }
+            "data": restaurantData,
+            "columns": [
+                { "data": null, "render": (data, type, row, meta) => meta.row + 1 },
+                { "data": "name" },
+                { "data": "breakfast", "className": "availability" },
+                { "data": "lunch", "className": "availability" },
+                { "data": "dinner", "className": "availability" },
+                { "data": "category" },
+                { "data": null, "render": (data) => `<button class="map-btn" onclick="window.open('https://map.naver.com/p/search/${encodeURIComponent(data.name)}', '_blank')">지도 보기</button>` }
+            ],
+            "createdRow": function(row, data, dataIndex) {
+                 // For Mobile View: Create a single row of info tags
+                const mobileInfoTags = `
+                    <div class="mobile-info-tags">
+                        <div class="tag ${data.breakfast === 'O' ? 'available' : ''}">☀️ 조식</div>
+                        <div class="tag ${data.lunch === 'O' ? 'available' : ''}">🏙️ 중식</div>
+                        <div class="tag ${data.dinner === 'O' ? 'available' : ''}">🌙 석식</div>
+                        <div class="tag">🍴 ${data.category}</div>
+                    </div>
+                `;
+                // Add data attributes for desktop view filtering
+                $(row).find('td').each(function(index) {
+                    const columnHeader = $("#restaurantTable thead th").eq(index).text();
+                    $(this).attr('data-label', columnHeader);
+                });
+                // Structure for mobile view
+                $(row).html(`
+                    <td class="mobile-main-info">
+                        <div data-label="가맹점">${data.name}</div>
+                        ${mobileInfoTags}
+                    </td>
+                    <td class="mobile-map-btn" data-label="지도">
+                        <button class="map-btn" onclick="window.open('https://map.naver.com/p/search/${encodeURIComponent(data.name)}', '_blank')">지도</button>
+                    </td>
+                `);
             },
-            // Disable ordering by default
+            "language": {
+                "search": "가맹점 검색:",
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "info": "총 _TOTAL_개",
+                "infoEmpty": "표시할 데이터가 없습니다.",
+                "infoFiltered": "(_MAX_개 항목에서 필터링)",
+                "zeroRecords": "일치하는 데이터가 없습니다.",
+                "paginate": { "previous": "이전", "next": "다음" }
+            },
             "ordering": false
         });
 
         // Custom filtering function
         $.fn.dataTable.ext.search.push(
             function(settings, data, dataIndex) {
-                var breakfast_filter = $('#filter-breakfast').val();
-                var lunch_filter = $('#filter-lunch').val();
-                var dinner_filter = $('#filter-dinner').val();
-                var category_filter = $('#filter-category').val();
+                const meal_filter = $('input[name="meal_time"]:checked').val();
+                const category_filter = $('#filter-category').val();
+                
+                const row = restaurantData[dataIndex];
+                let meal_match = true;
 
-                var row_breakfast = data[2];
-                var row_lunch = data[3];
-                var row_dinner = data[4];
-                var row_category = data[5];
-
-                if (
-                    (breakfast_filter === "" || breakfast_filter === row_breakfast) &&
-                    (lunch_filter === "" || lunch_filter === row_lunch) &&
-                    (dinner_filter === "" || dinner_filter === row_dinner) &&
-                    (category_filter === "" || category_filter === row_category)
-                ) {
-                    return true;
+                if (meal_filter) {
+                    meal_match = (row[meal_filter] === 'O');
                 }
-                return false;
+
+                const category_match = category_filter ? (row.category === category_filter) : true;
+
+                return meal_match && category_match;
             }
         );
 
         // Redraw table on filter change
-        $('#filter-breakfast, #filter-lunch, #filter-dinner, #filter-category').on('change', function() {
+        $('input[name="meal_time"], #filter-category').on('change', function() {
             table.draw();
         });
     });
-  </script>
- </body>
+    </script>
+</body>
 </html>

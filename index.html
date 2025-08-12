@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강동역 식사 리스트</title>
+    <title>강동역 식사 리스트 및 랜덤 선택기</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🍴 강동역 식사 리스트</h1>
+            <h1>🎲 강동역 식사 메뉴 랜덤 선택기</h1>
         </div>
         <div class="filters">
             <div class="filter-group">
@@ -35,10 +35,22 @@
             </div>
         </div>
 
+        <div class="random-picker">
+            <button id="randomPickBtn">오늘 뭐 먹지? 룰렛 돌리기! 🎲</button>
+            <div id="resultDisplay"></div>
+        </div>
+
         <table id="restaurantTable" class="display">
             <thead>
                 <tr>
-                    <th>순번</th><th>가맹점</th><th>조식</th><th>중식</th><th>석식</th><th>음식점 종류</th><th>지도</th>
+                    <th>선택</th>
+                    <th>순번</th>
+                    <th>가맹점</th>
+                    <th>조식</th>
+                    <th>중식</th>
+                    <th>석식</th>
+                    <th>음식점 종류</th>
+                    <th>지도</th>
                 </tr>
             </thead>
             <tbody></tbody>

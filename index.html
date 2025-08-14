@@ -3,58 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>강동역 식사 리스트 및 랜덤 선택기</title>
+    <title>강동역 식사 메뉴 랜덤 선택기</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎲 강동역 식사 메뉴 랜덤 선택기</h1>
+            <h1>강동역 식사 메뉴</h1>
         </div>
-        <div class="filters">
-            <div class="filter-group">
-                <span class="filter-label">식사:</span>
-                <div class="radio-group">
-                    <input type="radio" id="meal_all" name="meal_time" value="" checked>
-                    <label for="meal_all">전체</label>
-                    <input type="radio" id="meal_bf" name="meal_time" value="breakfast">
-                    <label for="meal_bf">조식</label>
-                    <input type="radio" id="meal_ln" name="meal_time" value="lunch">
-                    <label for="meal_ln">중식</label>
-                    <input type="radio" id="meal_dn" name="meal_time" value="dinner">
-                    <label for="meal_dn">석식</label>
+
+        <div class="card">
+            <div class="filters-actions">
+                <div class="filters">
+                    <div class="filter-group">
+                        <div class="radio-group">
+                            <input type="radio" id="meal_all" name="meal_time" value="" checked>
+                            <label for="meal_all">전체</label>
+                            <input type="radio" id="meal_bf" name="meal_time" value="breakfast">
+                            <label for="meal_bf">조식</label>
+                            <input type="radio" id="meal_ln" name="meal_time" value="lunch">
+                            <label for="meal_ln">중식</label>
+                            <input type="radio" id="meal_dn" name="meal_time" value="dinner">
+                            <label for="meal_dn">석식</label>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-category">
+                            <option value=''>모든 종류</option><option value='기타'>기타</option><option value='배식'>배식</option><option value='분식'>분식</option><option value='양식'>양식</option><option value='일식'>일식</option><option value='중식/아시안'>중식/아시안</option><option value='카페/디저트'>카페/디저트</option><option value='한식'>한식</option><option value='햄버거'>햄버거</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                         <input type="checkbox" id="showVotedOnly" class="custom-checkbox">
+                         <label for="showVotedOnly" class="filter-label">투표한 곳만 표시</label>
+                    </div>
                 </div>
             </div>
-            <div class="filter-group">
-                <label class="filter-label" for="filter-category">종류:</label>
-                <select id="filter-category">
-                    <option value=''>모두</option><option value='기타'>기타</option><option value='배식'>배식</option><option value='분식'>분식</option><option value='양식'>양식</option><option value='일식'>일식</option><option value='중식/아시안'>중식/아시안</option><option value='카페/디저트'>카페/디저트</option><option value='한식'>한식</option><option value='햄버거'>햄버거</option>
-                </select>
+            <div style="margin-top: 20px;">
+                <button id="randomPickBtn">오늘 뭐 먹지? 룰렛 돌리기! 🎲</button>
+                <div id="resultDisplay"></div>
             </div>
         </div>
 
-        <div class="random-picker">
-            <button id="randomPickBtn">오늘 뭐 먹지? 룰렛 돌리기! 🎲</button>
-            <div id="resultDisplay"></div>
+        <div class="card">
+            <div class="actions" style="margin-bottom: 15px; justify-content: flex-end;">
+                <button id="selectAllBtn" class="action-btn select-all">현재 목록 전체 선택</button>
+                <button id="resetAllBtn" class="action-btn">투표 초기화</button>
+            </div>
+            <table id="restaurantTable" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>투표</th>
+                        <th>순번</th>
+                        <th>가맹점</th>
+                        <th>조식</th>
+                        <th>중식</th>
+                        <th>석식</th>
+                        <th>종류</th>
+                        <th>지도</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
-
-        <table id="restaurantTable" class="display">
-            <thead>
-                <tr>
-                    <th>선택</th>
-                    <th>순번</th>
-                    <th>가맹점</th>
-                    <th>조식</th>
-                    <th>중식</th>
-                    <th>석식</th>
-                    <th>음식점 종류</th>
-                    <th>지도</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>

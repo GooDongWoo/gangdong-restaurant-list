@@ -2,7 +2,7 @@
 
 매일 반복되는 "오늘 뭐 먹지?"라는 고민을 해결하기 위해 제작된 웹 애플리케이션입니다. 강동역 주변의 다양한 식당 목록에서 필터링, 투표, 그리고 가중치 기반의 랜덤 선택 기능을 통해 메뉴 결정을 도와줍니다.
 
-![Project Screenshot](./screenshot.png.png)
+![Project Screenshot](./screenshot.png)
 
 ---
 

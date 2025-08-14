@@ -37,21 +37,21 @@ body {
     text-align: left;
 }
 
-/* 카드 스타일을 섹션별로 적용 */
+/* 카드 스타일을 iOS 설정처럼 그룹화된 리스트 형태로 변경 */
 .card {
     background-color: #ffffff;
     border-radius: 12px;
-    padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .filters-actions {
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
     gap: 15px;
     align-items: center;
+    justify-content: space-between;
 }
 
 .filters {
@@ -64,112 +64,136 @@ body {
 .filter-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
+.radio-group, .custom-checkbox-group {
+    display: flex;
+    align-items: center;
+    background-color: #e5e5ea;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.radio-group input[type="radio"],
+.custom-checkbox {
+    display: none;
+}
+
+.radio-group label,
 .filter-label {
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
     font-weight: 500;
-    white-space: nowrap;
+    transition: all 0.2s ease-in-out;
     color: #333;
 }
 
-/* iOS 토글 버튼 스타일 */
-.radio-group label {
-    cursor: pointer;
-    padding: 7px 15px;
-    border-radius: 8px;
-    border: none;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-    user-select: none;
-    color: #0c4da2;
-    background-color: #eef5ff;
-}
-
-.radio-group input[type="radio"] { display: none; }
-
 .radio-group input[type="radio"]:checked + label {
-    background-color: #0c4da2;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.custom-checkbox + .filter-label {
+    background-color: #e5e5ea;
+}
+.custom-checkbox:checked + .filter-label {
+    background-color: #34c759;
     color: white;
 }
 
-#filter-category, .custom-checkbox {
-    accent-color: #0c4da2;
-}
 
-#filter-category {
-    padding: 7px 10px;
+select#filterCategory {
+    padding: 8px 12px;
+    border: 1px solid #dcdce1;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    background-color: #fff;
+    font-size: 14px;
 }
 
-.actions { display: flex; gap: 10px; }
-
-.action-btn {
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-}
-
-.action-btn.select-all { background-color: #5ac8fa; } /* iOS 정보 버튼 파란색 */
-.action-btn.select-all:hover { background-color: #4ab7e1; }
-.action-btn:not(.select-all) { background-color: #8e8e93; } /* iOS 비활성 회색 */
-.action-btn:not(.select-all):hover { background-color: #7c7c81; }
 
 #randomPickBtn {
-    background-color: #0c4da2;
-    color: white;
-    border: none;
     width: 100%;
-    padding: 14px 20px;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    background-color: #0c4da2;
+    border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 700;
     transition: background-color 0.2s;
+    letter-spacing: 0.5px;
 }
-
-#randomPickBtn:hover { background-color: #0a3a7a; }
+#randomPickBtn:hover {
+    background-color: #0a3a7d;
+}
 
 #resultDisplay {
     margin-top: 15px;
-    font-size: 1.4em;
-    font-weight: 700;
-    color: #34c759; /* iOS 성공 초록색 */
-    height: 30px;
-    line-height: 30px;
-}
-
-table.dataTable {
-    width: 100% !important;
-    background-color: transparent !important;
-    border-collapse: separate !important;
-    border-spacing: 0;
-}
-
-table.dataTable thead th {
-    background-color: transparent;
-    text-align: center !important;
-    border-bottom: 1px solid #e5e5ea;
-    color: #666;
-    font-weight: 500;
-    padding: 10px;
-}
-
-tbody td {
+    padding: 15px;
+    background-color: #eef5ff;
+    border-radius: 10px;
     text-align: center;
-    vertical-align: middle;
-    padding: 12px 10px;
-    /* iOS 리스트 구분선 스타일 */
-    border-bottom: 1px solid #e5e5ea;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #0c4da2;
 }
 
-tbody tr:last-child td { border-bottom: none; }
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.action-btn.select-all {
+    background-color: #eef5ff;
+    color: #0c4da2;
+}
+.action-btn.select-all:hover {
+    background-color: #dbe9ff;
+}
+
+.action-btn#resetAllBtn {
+    background-color: #f2f2f7;
+    color: #8e8e93;
+}
+.action-btn#resetAllBtn:hover {
+    background-color: #e5e5ea;
+}
+
+
+/* DataTables 기본 스타일 초기화 및 재설정 */
+table.dataTable {
+    border-collapse: collapse !important;
+    border-spacing: 0;
+    width: 100% !important;
+    border: none;
+}
+table.dataTable thead th, table.dataTable tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e5e5ea;
+    text-align: center;
+}
+table.dataTable thead th {
+    font-weight: 600;
+    color: #666;
+    background-color: #f9f9fb;
+}
+table.dataTable thead th:first-child, table.dataTable tbody td:first-child { border-left: none; }
+table.dataTable thead th:last-child, table.dataTable tbody td:last-child { border-right: none; }
+table.dataTable tbody tr:last-child td { border-bottom: none; }
 
 /* 신규 +/- 투표 UI 스타일 (iOS 스타일) */
 .vote-control { display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -203,26 +227,128 @@ tbody tr:last-child td { border-bottom: none; }
 }
 
 .availability.available { color: #34c759; }
-.availability.unavailable { color: #ccc; }
+.availability.unavailable { color: #ff3b30; }
 
-button.map-btn {
-    background-color: #f2f2f7;
-    color: #0c4da2;
-    border: none;
-    padding: 7px 12px;
-    border-radius: 20px;
-    cursor: pointer;
+.map-btn {
+    padding: 6px 12px;
+    font-size: 13px;
     font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    background-color: #f2f2f7;
+    color: #333;
+    cursor: pointer;
     transition: background-color 0.2s;
-    white-space: nowrap;
 }
-button.map-btn:hover { background-color: #e5e5ea; }
+.map-btn:hover { background-color: #e5e5ea; }
 
-/* 모바일 반응형 스타일 */
+/* DataTables 부가 기능 스타일 */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #dcdce1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-left: 5px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.5em 1em;
+    border-radius: 8px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #0c4da2;
+    color: white !important;
+    border: none;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #eef5ff;
+    color: #0c4da2 !important;
+    border: none;
+}
+
+
+/* ---------------------------------------------- */
+/* 모바일 반응형 스타일                */
+/* ---------------------------------------------- */
 @media screen and (max-width: 768px) {
-    body { padding: 0; }
-    .container { padding: 0; margin: 0; }
-    .card { border-radius: 0; margin-bottom: 10px; box-shadow: none; }
-    .header { padding: 20px; border-bottom: 1px solid #e5e5ea; }
-    .header h1 { font-size: 24px; }
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        margin: 10px auto;
+    }
+
+    .header h1 {
+        font-size: 26px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+
+    /* 필터 및 액션 버튼 수직 정렬 */
+    .filters-actions, .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        justify-content: center;
+    }
+
+    .radio-group label, .filter-label {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    
+    .actions {
+        margin-top: 10px;
+    }
+
+    /* 테이블 셀 내용 최적화 */
+    #restaurantTable td, #restaurantTable th {
+        padding: 8px 4px; /* 셀 좌우 여백 축소 */
+        font-size: 14px;  /* 폰트 크기 소폭 축소 */
+        text-align: center;
+    }
+
+    /* 가맹점 이름이 길 경우 말줄임표(...) 처리 */
+    .restaurant-name {
+        max-width: 110px; /* 이름 최대 너비 지정 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+
+    /* 투표 UI 크기 및 간격 축소 */
+    .vote-control {
+        gap: 5px;
+    }
+    .vote-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 18px;
+    }
+    .vote-count {
+        min-width: 20px;
+        font-size: 1em;
+    }
+
+    /* 지도 버튼 간소화 */
+    .map-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        text-align: left;
+    }
 }

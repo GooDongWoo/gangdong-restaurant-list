@@ -15,7 +15,8 @@ $(document).ready(function() {
                 "orderable": false 
             },
             { "data": "id" },
-            { "data": "name" },
+            // "가맹점" 컬럼에 'restaurant-name' 클래스 추가
+            { "data": "name", "className": "restaurant-name" },
             { "data": "breakfast", "className": "availability" },
             { "data": "lunch", "className": "availability" },
             { "data": "dinner", "className": "availability" },
@@ -24,66 +25,88 @@ $(document).ready(function() {
         ],
         "createdRow": function(row, data, dataIndex) {
             const headers = ["투표", "순번", "가맹점", "조식", "중식", "석식", "음식점 종류", "지도"];
-            $(row).find('td').each(function(index) { $(this).attr('data-label', headers[index]); });
-            $(row).find('td:eq(3)').addClass(data.breakfast === 'O' ? 'available' : 'unavailable').text(data.breakfast);
-            $(row).find('td:eq(4)').addClass(data.lunch === 'O' ? 'available' : 'unavailable').text(data.lunch);
-            $(row).find('td:eq(5)').addClass(data.dinner === 'O' ? 'available' : 'unavailable').text(data.dinner);
+            $(row).find('td').each(function(index) {
+                $(this).attr('data-label', headers[index]);
+                
+                // O/X 텍스트에 클래스 추가
+                if (["O", "X"].includes($(this).text())) {
+                    const className = $(this).text() === 'O' ? 'available' : 'unavailable';
+                    $(this).addClass(className);
+                }
+            });
         },
         "language": {
-            "search": "가맹점 검색:", "lengthMenu": "_MENU_ 개씩 보기", "info": "총 _TOTAL_개", "infoEmpty": "표시할 데이터가 없습니다.", "infoFiltered": "(_MAX_개 항목에서 필터링)", "zeroRecords": "일치하는 데이터가 없습니다.", "paginate": { "previous": "이전", "next": "다음" }
+            "search": "가맹점 검색:",
+            "lengthMenu": "_MENU_ 개씩 보기",
+            "info": "총 _TOTAL_개 중 _START_에서 _END_까지 표시",
+            "infoEmpty": "표시할 데이터가 없습니다.",
+            "infoFiltered": "(_MAX_개에서 필터링됨)",
+            "zeroRecords": "일치하는 데이터가 없습니다.",
+            "paginate": {
+                "first": "처음",
+                "last": "마지막",
+                "next": "다음",
+                "previous": "이전"
+            }
         },
-        "ordering": false, "info": false, "lengthChange": false
+        "order": [[1, 'asc']],
+        "columnDefs": [
+            { "targets": [1, 3, 4, 5, 6], "className": "dt-body-center" }
+        ],
+        "dom": '<"top"lf>rt<"bottom"ip><"clear">'
     });
 
-    // --- 커스텀 필터 로직 ('투표한 식당만 보기' 추가) ---
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            if (settings.nTable.id !== 'restaurantTable') return true;
-
-            const rowData = settings.aoData[dataIndex]._aData;
-            const meal_filter = $('input[name="meal_time"]:checked').val();
-            const category_filter = $('#filter-category').val();
-            const show_voted = $('#showVotedOnly').is(':checked');
-
-            // 투표수 가져오기
-            const tr = settings.aoData[dataIndex].nTr; // 현재 행의 DOM element
-            const votes = parseInt($(tr).find('.vote-count').text());
-
-            // '투표한 식당만 보기' 필터 조건
-            let voted_match = !show_voted || (show_voted && votes > 0);
-            if (!voted_match) return false;
-
-            // 기존 식사, 종류 필터 조건
-            let meal_match = true;
-            if (meal_filter === 'breakfast') meal_match = rowData.breakfast === 'O';
-            else if (meal_filter === 'lunch') meal_match = rowData.lunch === 'O';
-            else if (meal_filter === 'dinner') meal_match = rowData.dinner === 'O';
-            
-            let category_match = category_filter ? (rowData.category === category_filter) : true;
-            
-            return meal_match && category_match;
-        }
-    );
-
-    // 필터 변경 시 테이블 다시 그리기
-    $('input[name="meal_time"], #filter-category, #showVotedOnly').on('change', function() {
+    // 식사 시간 필터링
+    $('input[name="meal_time"]').on('change', function() {
         table.draw();
     });
 
-    // --- 신규 +/- 버튼 이벤트 처리 (이벤트 위임 방식) ---
+    // 음식 종류 필터링
+    $('#filterCategory').on('change', function() {
+        table.column(6).search(this.value).draw();
+    });
+    
+    // 투표한 식당만 보기 필터링
+    $('#showVotedOnly').on('change', function() {
+        table.draw();
+    });
+
+    $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+            const mealFilter = $('input[name="meal_time"]:checked').val();
+            const showVotedOnly = $('#showVotedOnly').is(':checked');
+            
+            let isMealAvailable = true;
+            if (mealFilter === 'breakfast' && data[3] !== 'O') isMealAvailable = false;
+            if (mealFilter === 'lunch' && data[4] !== 'O') isMealAvailable = false;
+            if (mealFilter === 'dinner' && data[5] !== 'O') isMealAvailable = false;
+
+            let isVoted = true;
+            if (showVotedOnly) {
+                const votes = parseInt($(table.row(dataIndex).node()).find('.vote-count').text());
+                if (isNaN(votes) || votes === 0) {
+                    isVoted = false;
+                }
+            }
+            
+            return isMealAvailable && isVoted;
+        }
+    );
+    
+    // 투표 버튼 로직
     $('#restaurantTable tbody').on('click', '.vote-btn', function() {
-        const $voteCount = $(this).siblings('.vote-count');
-        let currentVotes = parseInt($voteCount.text());
+        const countSpan = $(this).siblings('.vote-count');
+        let currentVotes = parseInt(countSpan.text());
 
         if ($(this).hasClass('plus')) {
             currentVotes++;
-        } else if ($(this).hasClass('minus')) {
-            currentVotes = Math.max(0, currentVotes - 1); // 0 미만으로 내려가지 않음
+        } else if ($(this).hasClass('minus') && currentVotes > 0) {
+            currentVotes--;
         }
         
-        $voteCount.text(currentVotes);
+        countSpan.text(currentVotes);
 
-        // '투표한 식당만 보기'가 활성화된 상태에서 투표수를 0으로 만들면 바로 목록에서 사라지도록 함
+        // '투표한 식당만 보기' 필터가 활성화된 경우, 투표 수가 0이 되면 행을 다시 그려서 숨김 처리
         if ($('#showVotedOnly').is(':checked') && currentVotes === 0) {
             table.row($(this).closest('tr')).draw();
         }
@@ -104,7 +127,7 @@ $(document).ready(function() {
     $('#randomPickBtn').on('click', function() {
         let weightedList = [];
 
-        table.rows().every(function () {
+        table.rows({ search: 'applied' }).every(function () { // 현재 필터링된 목록만 대상으로 변경
             const rowNode = this.node();
             const rowData = this.data();
             const votes = parseInt($(rowNode).find('.vote-count').text());
@@ -118,13 +141,13 @@ $(document).ready(function() {
 
         const resultDisplay = $('#resultDisplay');
         if (weightedList.length === 0) {
-            resultDisplay.text('먼저 1표 이상 투표해주세요!').css('color', '#ff5722');
+            resultDisplay.text("투표한 식당이 없어요! 먼저 투표해주세요. 🗳️");
             return;
         }
 
         const randomIndex = Math.floor(Math.random() * weightedList.length);
-        const winner = weightedList[randomIndex];
-        
-        resultDisplay.html(`🎉 오늘의 식당은 바로... <strong>${winner}</strong> 입니다! 🎉`).css('color', '#1c3b69');
+        const selectedRestaurant = weightedList[randomIndex];
+
+        resultDisplay.html(`오늘의 메뉴는... 🥁 <br><strong>${selectedRestaurant}</strong> 입니다!`);
     });
 });

@@ -81,6 +81,9 @@
                 <input type="text" id="postAuthor" placeholder="이름" required>
                 <input type="password" id="postPassword" placeholder="비밀번호 (수정/삭제 시 필요)" required>
                 <textarea id="postContent" placeholder="내용을 입력하세요..." required></textarea>
+                
+                <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY" style="margin: 10px 0;"></div>
+
                 <button type="submit">등록</button>
             </form>
         </div>
@@ -89,6 +92,8 @@
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     
     <script src="data.js"></script>
     <script src="script.js"></script>

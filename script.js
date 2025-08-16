@@ -2,7 +2,6 @@
 const SUPABASE_URL = 'https://lggosdjligtdcgnupiij.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnZ29zZGpsaWd0ZGNnbnVwaWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzMjMwMjksImV4cCI6MjA3MDg5OTAyOX0.6Z1L0l-MRHyu1cuPOVeAVnUXU5tGvOzMGUGngvKc370';
 
-// [수정 1] 변수 이름 변경 (supabase -> supabaseClient)
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 $(document).ready(function() {
@@ -10,18 +9,7 @@ $(document).ready(function() {
         "pageLength": 100,
         "data": restaurantData,
         "columns": [
-            { 
-                "data": null, 
-                "render": () => `
-                    <div class="vote-control">
-                        <span class="vote-count">0</span>
-                        <div class="vote-buttons">
-                            <button class="vote-btn minus" aria-label="minus">-</button>
-                            <button class="vote-btn plus" aria-label="plus">+</button>
-                        </div>
-                    </div>`,
-                "orderable": false 
-            },
+            { "data": null, "render": () => `<div class="vote-control"><span class="vote-count">0</span><div class="vote-buttons"><button class="vote-btn minus" aria-label="minus">-</button><button class="vote-btn plus" aria-label="plus">+</button></div></div>`, "orderable": false },
             { "data": "id" },
             { "data": "name", "className": "restaurant-name" },
             { "data": "breakfast", "className": "availability" },
@@ -29,11 +17,7 @@ $(document).ready(function() {
             { "data": "dinner", "className": "availability" },
             { "data": "category" },
             { "data": null, "render": (d) => `<button class="map-btn" onclick="window.open('https://map.naver.com/p/search/${encodeURIComponent(d.name)}', '_blank')">지도</button>`, "orderable": false },
-            { 
-                "data": null, 
-                "render": (data) => `<button class="guestbook-btn" data-id="${data.id}" data-name="${data.name}">방명록</button>`,
-                "orderable": false 
-            }
+            { "data": null, "render": (data) => `<button class="guestbook-btn" data-id="${data.id}" data-name="${data.name}">방명록</button>`, "orderable": false }
         ],
         "createdRow": function(row, data, dataIndex) {
             $(row).find('td').each(function(index) {
@@ -50,7 +34,7 @@ $(document).ready(function() {
     });
 
     $('input[name="meal_time"]').on('change', () => table.draw());
-    $('#filterCategory').on('change', function() { table.column(6).search(this.value).draw(); });
+    $('#filter-category').on('change', function() { table.column(6).search(this.value).draw(); });
     $('#showVotedOnly').on('change', () => table.draw());
 
     $.fn.dataTable.ext.search.push(
@@ -116,7 +100,6 @@ $(document).ready(function() {
     async function loadPosts(restaurantId) {
         const postsContainer = $('#postsContainer');
         postsContainer.html('로딩 중...');
-        // [수정 2] supabaseClient 사용
         const { data, error } = await supabaseClient
             .from('guestbook')
             .select('*')
@@ -154,23 +137,56 @@ $(document).ready(function() {
         });
     }
     
+    // [ 중요! ] : 방명록 제출 로직 변경
     $('#addPostForm').on('submit', async function(e) {
         e.preventDefault();
+        const submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).text('등록 중...');
+
+        // 1. reCAPTCHA 응답 토큰 가져오기
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse) {
+            alert('"로봇이 아닙니다"를 체크해주세요.');
+            submitButton.prop('disabled', false).text('등록');
+            return;
+        }
+
         const restaurantId = $('#modalRestaurantId').val();
         const author = $('#postAuthor').val();
         const content = $('#postContent').val();
         const password = $('#postPassword').val();
-        // [수정 3] supabaseClient 사용
-        const { error } = await supabaseClient
-            .from('guestbook')
-            .insert([{ restaurant_id: restaurantId, author, content, password }]);
 
-        if (error) {
-            alert('글 등록에 실패했습니다.');
-            console.error(error);
-        } else {
+        try {
+            // 2. Supabase Edge Function 호출
+            const { data, error } = await supabaseClient.functions.invoke('submit-guestbook', {
+                body: {
+                    recaptchaToken: recaptchaResponse,
+                    postData: {
+                        restaurant_id: restaurantId,
+                        author,
+                        content,
+                        password
+                    }
+                }
+            });
+
+            if (error) throw error; // 네트워크 에러 등
+
+            // Edge Function 내부에서 발생한 에러 처리
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // 3. 성공 처리
             $('#addPostForm')[0].reset();
             await loadPosts(restaurantId);
+
+        } catch (error) {
+            alert('글 등록에 실패했습니다: ' + error.message);
+            console.error(error);
+        } finally {
+            grecaptcha.reset(); // reCAPTCHA 위젯 초기화
+            submitButton.prop('disabled', false).text('등록');
         }
     });
 });
@@ -178,7 +194,7 @@ $(document).ready(function() {
 async function editPost(postId, currentContent) {
     const password = prompt('수정하려면 비밀번호를 입력하세요:');
     if (!password) return;
-    // [수정 4] supabaseClient 사용
+
     const { data, error: checkError } = await supabaseClient
         .from('guestbook')
         .select('id')
@@ -193,7 +209,7 @@ async function editPost(postId, currentContent) {
 
     const newContent = prompt('수정할 내용을 입력하세요:', currentContent);
     if (!newContent) return;
-    // [수정 5] supabaseClient 사용
+
     const { error: updateError } = await supabaseClient
         .from('guestbook')
         .update({ content: newContent })
@@ -209,7 +225,7 @@ async function editPost(postId, currentContent) {
 async function deletePost(postId) {
     const password = prompt('삭제하려면 비밀번호를 입력하세요:');
     if (!password) return;
-    // [수정 6] supabaseClient 사용
+
     const { data, error: checkError } = await supabaseClient
         .from('guestbook')
         .select('id')
@@ -223,7 +239,6 @@ async function deletePost(postId) {
     }
 
     if (confirm('정말로 삭제하시겠습니까?')) {
-        // [수정 7] supabaseClient 사용
         const { error: deleteError } = await supabaseClient
             .from('guestbook')
             .delete()
@@ -239,37 +254,5 @@ async function deletePost(postId) {
 
 $('#guestbookModal').on('reload', async function() {
     const restaurantId = $('#modalRestaurantId').val();
-    const postsContainer = $('#postsContainer');
-    postsContainer.html('새로고침 중...');
-    // [수정 8] supabaseClient 사용
-    const { data, error } = await supabaseClient
-        .from('guestbook')
-        .select('*')
-        .eq('restaurant_id', restaurantId)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        postsContainer.html('글을 불러오는데 실패했습니다.');
-        return;
-    }
-    
-    postsContainer.empty();
-    if (data.length === 0) postsContainer.html('아직 작성된 글이 없습니다.');
-
-    data.forEach(post => {
-        const postDate = new Date(post.created_at).toLocaleString('ko-KR');
-        postsContainer.append(`
-            <div class="post">
-                <div class="post-header">
-                    <span class="post-author">${post.author}</span>
-                    <span>${postDate}</span>
-                </div>
-                <p class="post-content">${post.content.replace(/\n/g, '<br>')}</p>
-                <div class="post-actions">
-                    <button onclick="editPost(${post.id}, '${post.content}')">수정</button>
-                    <button onclick="deletePost(${post.id})">삭제</button>
-                </div>
-            </div>
-        `);
-    });
+    await loadPosts(restaurantId);
 });

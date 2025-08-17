@@ -120,6 +120,7 @@ $(document).ready(function() {
         postsContainer.empty();
         data.forEach(post => {
             const postDate = new Date(post.created_at).toLocaleString('ko-KR');
+            // 📌 중요: 버튼의 onclick 이벤트에 post.id 대신 post.query_id를 전달하도록 수정
             const postElement = `
                 <div class="post">
                     <div class="post-header">
@@ -128,8 +129,8 @@ $(document).ready(function() {
                     </div>
                     <p class="post-content">${post.content.replace(/\n/g, '<br>')}</p>
                     <div class="post-actions">
-                        <button onclick="editPost(${post.id}, '${post.content}')">수정</button>
-                        <button onclick="deletePost(${post.id})">삭제</button>
+                        <button onclick="editPost(${post.query_id}, '${post.content}')">수정</button>
+                        <button onclick="deletePost(${post.query_id})">삭제</button>
                     </div>
                 </div>
             `;
@@ -137,13 +138,11 @@ $(document).ready(function() {
         });
     }
     
-    // [ 중요! ] : 방명록 제출 로직 변경
     $('#addPostForm').on('submit', async function(e) {
         e.preventDefault();
         const submitButton = $(this).find('button[type="submit"]');
         submitButton.prop('disabled', true).text('등록 중...');
 
-        // 1. reCAPTCHA 응답 토큰 가져오기
         const recaptchaResponse = grecaptcha.getResponse();
         if (!recaptchaResponse) {
             alert('"로봇이 아닙니다"를 체크해주세요.');
@@ -157,7 +156,6 @@ $(document).ready(function() {
         const password = $('#postPassword').val();
 
         try {
-            // 2. Supabase Edge Function 호출
             const { data, error } = await supabaseClient.functions.invoke('submit-guestbook', {
                 body: {
                     recaptchaToken: recaptchaResponse,
@@ -170,14 +168,12 @@ $(document).ready(function() {
                 }
             });
 
-            if (error) throw error; // 네트워크 에러 등
+            if (error) throw error; 
 
-            // Edge Function 내부에서 발생한 에러 처리
             if (data.error) {
                 throw new Error(data.error);
             }
             
-            // 3. 성공 처리
             $('#addPostForm')[0].reset();
             await loadPosts(restaurantId);
 
@@ -185,11 +181,13 @@ $(document).ready(function() {
             alert('글 등록에 실패했습니다: ' + error.message);
             console.error(error);
         } finally {
-            grecaptcha.reset(); // reCAPTCHA 위젯 초기화
+            grecaptcha.reset();
             submitButton.prop('disabled', false).text('등록');
         }
     });
 });
+
+// 📌 중요: 수정 기능을 RPC 함수 호출 방식으로 최종 수정
 async function editPost(postId, currentContent) {
     const password = prompt('수정하려면 비밀번호를 입력하세요:');
     if (!password) return;
@@ -197,7 +195,6 @@ async function editPost(postId, currentContent) {
     const newContent = prompt('수정할 내용을 입력하세요:', currentContent);
     if (!newContent) return;
 
-    // 방금 만든 RPC 함수를 호출합니다.
     const { data, error } = await supabaseClient.rpc('update_guestbook_post', {
         post_id: postId,
         user_password: password,
@@ -207,19 +204,19 @@ async function editPost(postId, currentContent) {
     if (error) {
         alert('수정에 실패했습니다.');
         console.error('Supabase RPC error:', error);
-    } else if (data) { // RPC 함수가 true를 반환하면 성공
+    } else if (data) {
         await $('#guestbookModal').trigger('reload');
-    } else { // RPC 함수가 false를 반환하면 비밀번호 불일치
+    } else {
         alert('비밀번호가 일치하지 않습니다.');
     }
 }
 
+// 📌 중요: 삭제 기능을 RPC 함수 호출 방식으로 최종 수정
 async function deletePost(postId) {
     const password = prompt('삭제하려면 비밀번호를 입력하세요:');
     if (!password) return;
 
     if (confirm('정말로 삭제하시겠습니까?')) {
-        // 방금 만든 RPC 함수를 호출합니다.
         const { data, error } = await supabaseClient.rpc('delete_guestbook_post', {
             post_id: postId,
             user_password: password
@@ -228,15 +225,18 @@ async function deletePost(postId) {
         if (error) {
             alert('삭제에 실패했습니다.');
             console.error('Supabase RPC error:', error);
-        } else if (data) { // RPC 함수가 true를 반환하면 성공
+        } else if (data) {
             await $('#guestbookModal').trigger('reload');
-        } else { // RPC 함수가 false를 반환하면 비밀번호 불일치
+        } else {
             alert('비밀번호가 일치하지 않습니다.');
         }
     }
 }
 
+// 모달이 다시 로드될 때 게시글을 새로고침하는 이벤트 핸들러
 $('#guestbookModal').on('reload', async function() {
     const restaurantId = $('#modalRestaurantId').val();
-    await loadPosts(restaurantId);
+    if (restaurantId) {
+        await loadPosts(restaurantId);
+    }
 });

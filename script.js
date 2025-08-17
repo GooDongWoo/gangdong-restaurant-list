@@ -190,35 +190,27 @@ $(document).ready(function() {
         }
     });
 });
-
 async function editPost(postId, currentContent) {
     const password = prompt('수정하려면 비밀번호를 입력하세요:');
     if (!password) return;
 
-    const { data, error: checkError } = await supabaseClient
-        .from('guestbook')
-        .select('id')
-        .eq('id', postId)
-        .eq('password', password)
-        .single();
-
-    if (checkError || !data) {
-        alert('비밀번호가 일치하지 않습니다.');
-        return;
-    }
-
     const newContent = prompt('수정할 내용을 입력하세요:', currentContent);
     if (!newContent) return;
 
-    const { error: updateError } = await supabaseClient
-        .from('guestbook')
-        .update({ content: newContent })
-        .eq('id', postId);
+    // 방금 만든 RPC 함수를 호출합니다.
+    const { data, error } = await supabaseClient.rpc('update_guestbook_post', {
+        post_id: postId,
+        user_password: password,
+        new_content: newContent
+    });
 
-    if (updateError) {
+    if (error) {
         alert('수정에 실패했습니다.');
-    } else {
+        console.error('Supabase RPC error:', error);
+    } else if (data) { // RPC 함수가 true를 반환하면 성공
         await $('#guestbookModal').trigger('reload');
+    } else { // RPC 함수가 false를 반환하면 비밀번호 불일치
+        alert('비밀번호가 일치하지 않습니다.');
     }
 }
 
@@ -226,28 +218,20 @@ async function deletePost(postId) {
     const password = prompt('삭제하려면 비밀번호를 입력하세요:');
     if (!password) return;
 
-    const { data, error: checkError } = await supabaseClient
-        .from('guestbook')
-        .select('id')
-        .eq('id', postId)
-        .eq('password', password)
-        .single();
-    
-    if (checkError || !data) {
-        alert('비밀번호가 일치하지 않습니다.');
-        return;
-    }
-
     if (confirm('정말로 삭제하시겠습니까?')) {
-        const { error: deleteError } = await supabaseClient
-            .from('guestbook')
-            .delete()
-            .eq('id', postId);
-
-        if (deleteError) {
+        // 방금 만든 RPC 함수를 호출합니다.
+        const { data, error } = await supabaseClient.rpc('delete_guestbook_post', {
+            post_id: postId,
+            user_password: password
+        });
+        
+        if (error) {
             alert('삭제에 실패했습니다.');
-        } else {
+            console.error('Supabase RPC error:', error);
+        } else if (data) { // RPC 함수가 true를 반환하면 성공
             await $('#guestbookModal').trigger('reload');
+        } else { // RPC 함수가 false를 반환하면 비밀번호 불일치
+            alert('비밀번호가 일치하지 않습니다.');
         }
     }
 }

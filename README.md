@@ -41,7 +41,13 @@
 ### ✍️ 방명록 시스템
 - **식당별 후기**: 각 식당마다 독립적인 방명록 운영
 - **안전한 관리**: 비밀번호 기반의 수정/삭제 시스템
+- **스팸 방지**: Google reCAPTCHA를 통한 봇 차단
 - **실시간 업데이트**: 새로운 후기 즉시 반영
+
+### 🛡️ 보안 기능
+- **데이터 보호**: Supabase RLS(Row Level Security) 적용
+- **안전한 인증**: 서버리스 함수를 통한 데이터 검증
+- **스팸 차단**: reCAPTCHA v2를 통한 자동화 방지
 
 ## 🛠️ 기술 스택
 
@@ -53,6 +59,7 @@
 ### Libraries & Frameworks
 - **jQuery**: DOM 조작 및 이벤트 처리
 - **DataTables.js**: 테이블 데이터 관리 및 필터링
+- **Google reCAPTCHA v2**: 스팸 방지 및 보안
 
 ### Backend & Database
 - **Supabase**: 
@@ -60,6 +67,7 @@
   - 실시간 데이터 동기화
   - 서버리스 RPC 함수
   - Row Level Security (RLS)
+  - Edge Functions (방명록 제출 검증)
 
 ## 🚀 사용 방법
 
@@ -85,10 +93,25 @@
 
 ## ⚙️ 로컬 환경 설정
 
+## 📁 프로젝트 구조
+
+```
+kangdong-restaurant-selector/
+├── index.html              # 메인 HTML 페이지
+├── style.css               # 스타일시트
+├── script.js               # 메인 JavaScript 로직
+├── data.js                 # 식당 데이터 (94개 식당 정보)
+├── .gitignore             # Git 제외 파일 목록
+└── README.md              # 프로젝트 문서
+```
+
+## ⚙️ 로컬 환경 설정
+
 ### 📋 사전 요구사항
-- Node.js 14.0 이상
-- npm 또는 yarn
+- 웹 브라우저 (Chrome, Firefox, Safari 등)
+- 텍스트 에디터 또는 IDE
 - Supabase 계정
+- Google reCAPTCHA 사이트 키
 
 ### 1️⃣ 프로젝트 클론
 ```bash
@@ -124,7 +147,7 @@ ALTER TABLE guestbook ENABLE ROW LEVEL SECURITY;
 ```sql
 -- UPDATE 함수
 CREATE OR REPLACE FUNCTION update_guestbook_post(post_id BIGINT, user_password TEXT, new_content TEXT)
-RETURNS BOOLEAN AS $$
+RETURNS BOOLEAN AS $
 DECLARE
   is_match BOOLEAN;
 BEGIN
@@ -142,11 +165,11 @@ BEGIN
     RETURN FALSE;
   END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- DELETE 함수
 CREATE OR REPLACE FUNCTION delete_guestbook_post(post_id BIGINT, user_password TEXT)
-RETURNS BOOLEAN AS $$
+RETURNS BOOLEAN AS $
 DECLARE
   is_match BOOLEAN;
 BEGIN
@@ -163,7 +186,7 @@ BEGIN
     RETURN FALSE;
   END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
 #### 함수 권한 설정
@@ -173,35 +196,43 @@ GRANT EXECUTE ON FUNCTION public.update_guestbook_post(BIGINT, TEXT, TEXT) TO an
 GRANT EXECUTE ON FUNCTION public.delete_guestbook_post(BIGINT, TEXT) TO anon;
 ```
 
-### 3️⃣ 환경 변수 설정
-프로젝트 루트에 `.env` 파일 생성:
-
-```env
-VITE_SUPABASE_URL="YOUR_SUPABASE_URL"
-VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+#### Edge Functions 생성 (방명록 제출용)
+```sql
+-- submit-guestbook Edge Function이 필요합니다
+-- Supabase CLI를 사용하여 functions/submit-guestbook/index.ts 파일을 배포해야 합니다
 ```
 
-### 4️⃣ 의존성 설치 및 실행
+### 3️⃣ Google reCAPTCHA 설정
+1. [Google reCAPTCHA](https://www.google.com/recaptcha/) 사이트 접속
+2. 새 사이트 등록 (reCAPTCHA v2 선택)
+3. 도메인 추가 (로컬 테스트용: `localhost`)
+4. 사이트 키 발급받기
+
+### 4️⃣ 환경 변수 설정
+`script.js` 파일에서 다음 값들을 수정:
+
+```javascript
+// Supabase 설정
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+```
+
+`index.html` 파일에서 reCAPTCHA 사이트 키 수정:
+```html
+<div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+```
+
+### 5️⃣ 웹 서버 실행
+보안상의 이유로 로컬 파일로 직접 열면 안 되므로 간단한 웹 서버 실행:
+
 ```bash
-# 의존성 설치
-npm install
+# Python이 설치된 경우
+python -m http.server 8000
 
-# 개발 서버 실행
-npm run dev
-```
+# Node.js가 설치된 경우
+npx http-server
 
-## 📁 프로젝트 구조
-
-```
-kangdong-restaurant-selector/
-├── index.html              # 메인 HTML 페이지
-├── styles.css              # 스타일시트
-├── script.js               # 메인 JavaScript 로직
-├── restaurants.json        # 식당 데이터
-├── .env                    # 환경 변수 (git 제외)
-├── .gitignore             # Git 제외 파일 목록
-├── package.json           # 프로젝트 설정 및 의존성
-└── README.md              # 프로젝트 문서
+# 또는 Live Server 확장 프로그램 사용 (VS Code)
 ```
 
 ## 🤝 기여하기
@@ -223,7 +254,7 @@ kangdong-restaurant-selector/
 ### 자주 발생하는 문제들
 
 **Q: Supabase 연결이 되지 않아요**
-- A: `.env` 파일의 URL과 API 키가 정확한지 확인하세요
+- A: `script.js` 파일의 URL과 API 키가 정확한지 확인하세요
 - 브라우저 개발자 도구의 Console에서 에러 메시지를 확인하세요
 
 **Q: 방명록 수정/삭제가 안 돼요**
@@ -231,13 +262,75 @@ kangdong-restaurant-selector/
 - 함수 실행 권한이 `anon` 사용자에게 부여되었는지 확인하세요
 
 **Q: 식당 데이터가 표시되지 않아요**
-- A: `restaurants.json` 파일이 올바른 경로에 있는지 확인하세요
+- A: `data.js` 파일이 올바른 경로에 있는지 확인하세요
 - 네트워크 탭에서 파일 로딩 상태를 확인하세요
 
+**Q: reCAPTCHA가 작동하지 않아요**
+- A: Google reCAPTCHA 사이트 키가 올바르게 설정되었는지 확인하세요
+- 도메인이 reCAPTCHA 설정에 등록되어 있는지 확인하세요
+
+**Q: 로컬에서 CORS 에러가 발생해요**
+- A: 웹 서버를 통해 접속해야 합니다 (파일:// 프로토콜 사용 금지)
+- `python -m http.server` 또는 Live Server 확장 프로그램을 사용하세요
+
+**Q: Edge Functions가 작동하지 않아요**
+- A: Supabase CLI를 통해 `submit-guestbook` 함수가 배포되었는지 확인하세요
+- 함수 로그를 확인하여 에러 메시지를 파악하세요
+
 ### 지원 받기
-- 이슈: [GitHub Issues](https://github.com/GooDongWoo/gangdong-restaurant-list) 페이지에서 버그 리포트 및 기능 요청
-- 문의: [wendy1301@naver.com]
+- 이슈: [GitHub Issues](링크) 페이지에서 버그 리포트 및 기능 요청
+- 문의: [이메일 주소] 또는 [연락처]
 
 ## 📄 라이선스
 
 이 프로젝트는 [MIT 라이선스](LICENSE) 하에 배포됩니다.
+
+---
+
+## 🎯 향후 개발 계획
+
+### 🔄 개선 예정 기능
+- **즐겨찾기 시스템**: 자주 가는 식당을 즐겨찾기로 저장
+- **평점 시스템**: 5점 척도의 식당 평가 기능
+- **거리 기반 정렬**: 현재 위치에서 가까운 순으로 정렬
+- **다크모드**: 눈의 피로를 줄이는 다크 테마
+- **PWA 지원**: 모바일 앱처럼 설치 가능한 웹앱
+- **통계 대시보드**: 인기 식당, 투표 통계 등 시각화
+- **소셜 공유**: 추천받은 식당을 SNS로 공유
+- **오프라인 지원**: 인터넷 연결 없이도 기본 기능 사용
+
+### 🆕 추가 기능 아이디어
+- **식단 기록**: 먹은 식당과 메뉴 기록 기능
+- **그룹 투표**: 여러 명이 함께 투표하는 기능
+
+---
+
+## 📞 지원 및 문의
+
+### 🐛 버그 신고 및 기능 제안
+프로젝트 개선을 위한 여러분의 의견을 기다립니다!
+
+- **GitHub Issues**: [이슈 등록하기](https://github.com/GooDongWoo/gangdong-restaurant-list/issues)
+  - 🐛 버그 리포트
+  - 💡 새로운 기능 제안
+  - 📝 문서 개선 요청
+  - 🎨 UI/UX 개선 아이디어
+
+### 💬 커뮤니티 및 소통
+- **이메일**: [wendy1301@naver.com](mailto:wendy1301@naver.com)
+- **카카오톡**: [오픈채팅방 링크] (추후 개설 예정)
+
+### 🤝 기여 방법
+- **코드 기여**: Pull Request를 통한 직접적인 개발 참여
+- **데이터 기여**: 식당 정보 업데이트 및 추가
+- **번역**: 다국어 지원을 위한 번역 작업
+- **테스트**: 다양한 환경에서의 테스트 및 피드백
+
+### ⭐ 프로젝트 지원하기
+이 프로젝트가 도움이 되셨다면:
+- GitHub에서 ⭐ 스타 누르기
+- 주변 사람들에게 공유하기
+- 소셜 미디어에서 홍보하기
+- 카페나 커뮤니티에서 추천하기
+
+---

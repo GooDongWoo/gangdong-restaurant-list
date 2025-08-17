@@ -395,3 +395,47 @@ table.dataTable tbody tr:last-child td { border-bottom: none; }
     .map-btn, .guestbook-btn { padding: 5px 8px; font-size: 12px; }
     .modal-content { margin: 20% auto; padding: 20px; }
 }
+
+/* --- 푸터 스타일 --- */
+.footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    border-top: 1px solid #e5e5ea;
+    font-size: 14px;
+    color: #8e8e93;
+}
+.footer p {
+    margin: 5px 0;
+}
+.footer strong {
+    color: #666;
+}
+.footer a {
+    color: #0c4da2;
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+}
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* 푸터 모바일 반응형 */
+@media screen and (max-width: 768px) {
+    .footer {
+        font-size: 12px;
+        padding: 20px 10px;
+        margin-top: 20px;
+    }
+    .footer .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .footer .footer-links span {
+        display: block;
+    }
+    .footer .footer-links .separator {
+        display: none; /* 모바일에서는 · 숨김 */
+    }
+}
